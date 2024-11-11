@@ -1,7 +1,8 @@
-import { ProductsList } from "./pages";
+import { ProductsListPage } from "./pages";
 import "./App.css";
+
 function App() {
-  return <ProductsList />;
+  return <ProductsListPage />;
 }
 
 export default App;
