@@ -1,42 +1,35 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useState } from "react";
 import { Pagination, PaginationProps } from "antd";
-import { List, Header } from "../../components";
-import { getProducts } from "../../getProducts";
+import { Header, List } from "../../components";
+import { getProducts } from "../../service";
 import { IProduct } from "../../models";
-import { useScrollEnd } from "../../useScrollEnd";
+import { useInfiniteScroll } from "../../hooks";
 import { ProductsListPageWrapper } from "./styles";
 
 export const ProductsListPage: FC = () => {
-  const [productList, setProductList] = useState<IProduct[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const allProducts = getProducts();
+  const [products, setProducts] = useState<IProduct[]>([]);
+  const [hasMore, setHasMore] = useState<boolean>(true);
 
-  const fetchData = (currentPage: number) => {
-    const list = [];
+  const loadMoreProducts = async () => {
+    if (loading) return;
 
-    for (let i = 20 * (currentPage - 1); i < currentPage * 20; i++) {
-      list.push(allProducts[i]);
+    const newProducts = await getProducts();
+    setProducts((prev) => [...prev, ...newProducts]);
+    setCurrentPage((prev) => prev + 1);
+    setLoading(false);
+
+    if (currentPage >= 10) {
+      setHasMore(false);
     }
-
-    setProductList([...productList, ...list]);
   };
 
-  const isEndOfPage = useScrollEnd();
-
-  useEffect(() => {
-    setProductList(getProducts());
-
-    if (isEndOfPage) {
-      const newList = getProducts();
-      setProductList((prev) => [...prev, ...newList]);
-    }
-  }, [isEndOfPage]);
+  useInfiniteScroll(loadMoreProducts, hasMore);
 
   const onShowSizeChange: PaginationProps["onShowSizeChange"] = (current) => {
-    fetchData(current);
     setCurrentPage(current);
   };
-
   return (
     <ProductsListPageWrapper
       justify="flex-start"
@@ -46,19 +39,16 @@ export const ProductsListPage: FC = () => {
     >
       <Header />
 
-      <List productList={productList} />
-
-      {productList.length === 200 ? (
+      <List productList={products} />
+      {!hasMore && (
         <Pagination
           onChange={onShowSizeChange}
           current={currentPage}
           size="default"
           pageSize={20}
-          total={allProducts.length}
+          total={200}
           responsive
         />
-      ) : (
-        <></>
       )}
     </ProductsListPageWrapper>
   );
