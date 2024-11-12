@@ -13,6 +13,7 @@ export const ProductsListPage: FC = () => {
     pageSize: number;
   }>({ current: 1, pageSize: 20 });
   const [products, setProducts] = useState<IProduct[]>([]);
+  const [allProducts, setAllProducts] = useState<IProduct[]>([]);
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [endedData, setEndedData] = useState<IProduct[]>([]);
   const loadMoreProducts = async () => {
@@ -20,8 +21,9 @@ export const ProductsListPage: FC = () => {
     try {
       setLoading(true);
       const newProducts = await getProducts();
-      console.log({ loading, newProducts });
+      // console.log({ loading, newProducts });
       setProducts((prev) => [...prev, ...newProducts]);
+      setAllProducts((prev) => [...prev, ...newProducts]);
       setPagination((prev) => {
         if (prev.current + 1 >= 10) {
           setHasMore(false);
@@ -29,12 +31,13 @@ export const ProductsListPage: FC = () => {
         return { ...prev, current: prev.current + 1 };
       });
     } catch (e) {
-      console.log(e);
+      // console.log(e);
     } finally {
       setLoading(false);
     }
   };
   useInfiniteScroll(loadMoreProducts, hasMore);
+
   useEffect(() => {
     if (!products.length) {
       loadMoreProducts();
@@ -43,14 +46,19 @@ export const ProductsListPage: FC = () => {
   }, []);
   const onChange: PaginationProps["onChange"] = (current, size) => {
     setPagination({ current, pageSize: size });
-    const newData = endedData.splice((current - 1) * size);
+    const newData = allProducts.slice((current - 1) * size, current * size);
+    window.scrollTo(0, 0);
     setProducts(newData);
   };
+
+  console.log(products);
+
   useEffect(() => {
     if (hasMore) {
       setEndedData(products);
     }
   }, [hasMore]);
+
   return (
     <ProductsListPageWrapper
       justify="flex-start"
