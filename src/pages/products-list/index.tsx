@@ -1,4 +1,4 @@
-import { FC, useCallback, useEffect, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { Pagination, PaginationProps, Spin } from "antd";
 import { Header, List } from "../../components";
 import { getProducts } from "../../service";
@@ -15,23 +15,21 @@ export const ProductsListPage: FC = () => {
   const [products, setProducts] = useState<IProduct[]>([]);
   const [allProducts, setAllProducts] = useState<IProduct[]>([]);
   const [hasMore, setHasMore] = useState<boolean>(true);
-  const [endedData, setEndedData] = useState<IProduct[]>([]);
   const loadMoreProducts = async () => {
     if (loading) return;
     try {
       setLoading(true);
       const newProducts = await getProducts();
-      // console.log({ loading, newProducts });
       setProducts((prev) => [...prev, ...newProducts]);
       setAllProducts((prev) => [...prev, ...newProducts]);
       setPagination((prev) => {
-        if (prev.current + 1 >= 10) {
+        if (prev.current + 1 > 10) {
           setHasMore(false);
         }
         return { ...prev, current: prev.current + 1 };
       });
     } catch (e) {
-      // console.log(e);
+      console.log(e);
     } finally {
       setLoading(false);
     }
@@ -47,17 +45,9 @@ export const ProductsListPage: FC = () => {
   const onChange: PaginationProps["onChange"] = (current, size) => {
     setPagination({ current, pageSize: size });
     const newData = allProducts.slice((current - 1) * size, current * size);
-    window.scrollTo(0, 0);
     setProducts(newData);
+    window.scrollTo(0, 0);
   };
-
-  console.log(products);
-
-  useEffect(() => {
-    if (hasMore) {
-      setEndedData(products);
-    }
-  }, [hasMore]);
 
   return (
     <ProductsListPageWrapper
