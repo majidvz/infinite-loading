@@ -12,15 +12,16 @@ export const ProductsListPage: FC = () => {
     current: number;
     pageSize: number;
   }>({ current: 1, pageSize: 20 });
-  const [products, setProducts] = useState<IProduct[]>([]);
+  const [productList, setProductList] = useState<IProduct[]>([]);
   const [allProducts, setAllProducts] = useState<IProduct[]>([]);
   const [hasMore, setHasMore] = useState<boolean>(true);
+
   const loadMoreProducts = async () => {
     if (loading) return;
     try {
       setLoading(true);
       const newProducts = await getProducts();
-      setProducts((prev) => [...prev, ...newProducts]);
+      setProductList((prev) => [...prev, ...newProducts]);
       setAllProducts((prev) => [...prev, ...newProducts]);
       setPagination((prev) => {
         if (prev.current + 1 > 10) {
@@ -28,8 +29,8 @@ export const ProductsListPage: FC = () => {
         }
         return { ...prev, current: prev.current + 1 };
       });
-    } catch (e) {
-      console.log(e);
+    } catch (error) {
+      console.log(error);
     } finally {
       setLoading(false);
     }
@@ -37,16 +38,20 @@ export const ProductsListPage: FC = () => {
   useInfiniteScroll(loadMoreProducts, hasMore);
 
   useEffect(() => {
-    if (!products.length) {
+    if (!productList.length) {
       loadMoreProducts();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   const onChange: PaginationProps["onChange"] = (current, size) => {
+    const firstIndex = (current - 1) * size;
+    const lastIndex = current * size;
+    const newData = allProducts.slice(firstIndex, lastIndex);
+
     setPagination({ current, pageSize: size });
-    const newData = allProducts.slice((current - 1) * size, current * size);
-    setProducts(newData);
-    window.scrollTo(0, 0);
+    setProductList(newData);
+
+    window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
   };
 
   return (
@@ -58,7 +63,7 @@ export const ProductsListPage: FC = () => {
     >
       <Header />
 
-      <List productList={products} />
+      <List productList={productList} />
       {loading && <Spin spinning />}
 
       {!hasMore && (
