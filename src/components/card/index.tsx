@@ -1,32 +1,17 @@
 import { FC } from "react";
 import { Flex } from "antd";
+import { IProduct } from "../../models";
 import { CardWrapper } from "./styles";
 
-interface ICardProps {
-  imageURL: string;
-  title: string;
-  description: string;
-  price: number;
-}
-
-export const Card: FC<ICardProps> = ({
-  imageURL,
-  title,
-  description,
-  price,
-}) => {
+export const Card: FC<IProduct> = ({ imageURL, title, description, price }) => {
   return (
     <CardWrapper vertical justify="flex-start" align="center">
-      <img className="cover" src={imageURL} alt={title} />
-      <Flex
-        gap={8}
-        justify="flex-start"
-        vertical
-        align="center"
-        className="body"
-      >
+      <div className="cover-wrapper">
+        <img className="cover" src={imageURL} alt={title} loading="lazy" />
+      </div>
+      <Flex vertical justify="flex-start" align="center" className="body">
         <h3 className="title popping-bold">{title}</h3>
-        <span className="price">{price}</span>
+        <span className="price popping-medium">Price: {price}</span>
         <p className="description">{description}</p>
       </Flex>
     </CardWrapper>

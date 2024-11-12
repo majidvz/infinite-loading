@@ -3,7 +3,7 @@ import { IProduct } from "./models";
 export const getProducts = () => {
   const products: IProduct[] = [];
 
-  for (let i = 0; i < 200; i++) {
+  for (let i = 0; i < 20; i++) {
     products.push({
       id: Math.floor(Math.random() * 10000),
       title: faker.commerce.productName(),

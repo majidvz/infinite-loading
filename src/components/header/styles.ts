@@ -13,13 +13,13 @@ export const HeaderWrapper = styled(Flex)`
   }
 
   .title {
-    color: #ffffffd9;
+    color: #000000e0;
     font-size: 40px;
     line-height: 64px;
   }
 
   .caption {
-    color: #ffffffa6;
+    color: #000000a6;
     font-size: 20px;
     line-height: 32px;
   }

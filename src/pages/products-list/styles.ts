@@ -13,4 +13,8 @@ export const ProductsListPageWrapper = styled(Flex)`
   @media screen and (max-width: 767.99px) {
     padding: 32px 16px;
   }
+
+  .ant-pagination-options {
+    display: none;
+  }
 `;
