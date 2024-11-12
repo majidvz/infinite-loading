@@ -3,9 +3,20 @@ import { Flex } from "antd";
 import { IProduct } from "../../models";
 import { CardWrapper } from "./styles";
 
-export const Card: FC<IProduct> = ({ imageURL, title, description, price }) => {
+export const Card: FC<IProduct> = ({
+  imageURL,
+  title,
+  description,
+  price,
+  id,
+}) => {
   return (
-    <CardWrapper vertical justify="flex-start" align="center">
+    <CardWrapper
+      vertical
+      justify="flex-start"
+      align="center"
+      id={id.toString()}
+    >
       <div className="cover-wrapper">
         <img className="cover" src={imageURL} alt={title} loading="lazy" />
       </div>

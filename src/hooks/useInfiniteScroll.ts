@@ -6,7 +6,7 @@ export const useInfiniteScroll = (loadMore: () => void, hasMore: boolean) => {
       const { scrollHeight, clientHeight, scrollTop } =
         document.documentElement;
 
-      if (scrollTop + clientHeight >= scrollHeight - 50 && hasMore) {
+      if (scrollTop + clientHeight >= scrollHeight && hasMore) {
         loadMore();
       }
     };

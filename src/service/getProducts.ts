@@ -17,5 +17,5 @@ export const getProducts: () => Promise<IProduct[]> = () =>
 
     return setTimeout(() => {
       resolve(list);
-    }, 500);
+    }, 1000);
   });

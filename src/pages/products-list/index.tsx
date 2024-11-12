@@ -1,5 +1,5 @@
-import { FC, useState } from "react";
-import { Pagination, PaginationProps } from "antd";
+import { FC, useCallback, useEffect, useState } from "react";
+import { Pagination, PaginationProps, Spin } from "antd";
 import { Header, List } from "../../components";
 import { getProducts } from "../../service";
 import { IProduct } from "../../models";
@@ -8,28 +8,49 @@ import { ProductsListPageWrapper } from "./styles";
 
 export const ProductsListPage: FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
-  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pagination, setPagination] = useState<{
+    current: number;
+    pageSize: number;
+  }>({ current: 1, pageSize: 20 });
   const [products, setProducts] = useState<IProduct[]>([]);
   const [hasMore, setHasMore] = useState<boolean>(true);
-
+  const [endedData, setEndedData] = useState<IProduct[]>([]);
   const loadMoreProducts = async () => {
     if (loading) return;
-
-    const newProducts = await getProducts();
-    setProducts((prev) => [...prev, ...newProducts]);
-    setCurrentPage((prev) => prev + 1);
-    setLoading(false);
-
-    if (currentPage >= 10) {
-      setHasMore(false);
+    try {
+      setLoading(true);
+      const newProducts = await getProducts();
+      console.log({ loading, newProducts });
+      setProducts((prev) => [...prev, ...newProducts]);
+      setPagination((prev) => {
+        if (prev.current + 1 >= 10) {
+          setHasMore(false);
+        }
+        return { ...prev, current: prev.current + 1 };
+      });
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setLoading(false);
     }
   };
-
   useInfiniteScroll(loadMoreProducts, hasMore);
-
-  const onShowSizeChange: PaginationProps["onShowSizeChange"] = (current) => {
-    setCurrentPage(current);
+  useEffect(() => {
+    if (!products.length) {
+      loadMoreProducts();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const onChange: PaginationProps["onChange"] = (current, size) => {
+    setPagination({ current, pageSize: size });
+    const newData = endedData.splice((current - 1) * size);
+    setProducts(newData);
   };
+  useEffect(() => {
+    if (hasMore) {
+      setEndedData(products);
+    }
+  }, [hasMore]);
   return (
     <ProductsListPageWrapper
       justify="flex-start"
@@ -40,12 +61,14 @@ export const ProductsListPage: FC = () => {
       <Header />
 
       <List productList={products} />
+      {loading && <Spin spinning />}
+
       {!hasMore && (
         <Pagination
-          onChange={onShowSizeChange}
-          current={currentPage}
+          onChange={onChange}
+          current={pagination.current}
           size="default"
-          pageSize={20}
+          pageSize={pagination.pageSize}
           total={200}
           responsive
         />
